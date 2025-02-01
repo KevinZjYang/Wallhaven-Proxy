@@ -2,6 +2,24 @@
 ## 简介
 wallhaven.cc站点api请求及图片的加速项目，部署在Cloudflare Workers。
 
+## 代理的地址
+- https://wallhaven.cc/xxx
+- https://w.wallhaven.cc/xxx
+- https://th.wallhaven.cc/xxx
+
+## 使用
+代理域名需要自己部署，下面的域名是瞎写的。
+
+- 1、直接把代理域名添加到要访问的域名前面
+
+比如代理域名：proxy.xxx.tech ,访问https://w.wallhaven.cc/full/vq/wallhaven-vq6x28.jpg
+
+新链接：https://proxy.xxx.tech/https://w.wallhaven.cc/full/vq/wallhaven-vq6x28.jpg
+
+- 2、代理域名：proxy.xxx.tech，把链接作为参数添加到后面。
+
+新链接：https://proxy.xxx.tech?q=https://w.wallhaven.cc/full/vq/wallhaven-vq6x28.jpg
+
 ## cf worker部署
 需要有一个托管在cf的域名。cf的域名在国内访问很差。
 
