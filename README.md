@@ -2,7 +2,7 @@
 ## 简介
 wallhaven.cc站点api请求及图片的加速项目，部署在Cloudflare Workers。
 
-## cf worker版本部署
+## cf worker部署
 需要有一个托管在cf的域名。cf的域名在国内访问很差。
 
 首页：https://dash.cloudflare.com/
