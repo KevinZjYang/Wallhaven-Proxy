@@ -25,7 +25,7 @@ const HTML_PAGE = `
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>URL Proxy Tool</title>
+    <title>Wallhaven 加速 </title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
         input { width: 70%; padding: 8px; }
@@ -34,10 +34,10 @@ const HTML_PAGE = `
     </style>
 </head>
 <body>
-    <h2>URL Proxy Tool</h2>
+    <h2>Wallhaven 加速</h2>
     <form onsubmit="handleSubmit(event)">
         <input type="text" id="urlInput" placeholder="Enter URL to proxy" required>
-        <button type="submit">Process</button>
+        <button type="submit">提交</button>
     </form>
     <script>
         function handleSubmit(event) {
