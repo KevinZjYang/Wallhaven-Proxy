@@ -7,6 +7,9 @@ wallhaven.cc站点api请求及图片的加速项目，部署在Cloudflare Worker
 - https://w.wallhaven.cc/xxx
 - https://th.wallhaven.cc/xxx
 
+## worker.js和worker_html.js的区别
+worker_html增加了一个网页用于调试。
+
 ## 使用
 代理域名需要自己部署，下面的域名是瞎写的。
 
