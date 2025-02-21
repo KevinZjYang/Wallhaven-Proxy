@@ -25,20 +25,132 @@ const HTML_PAGE = `
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Wallhaven 加速 </title>
+    <title>Wallhaven 加速</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
-        input { width: 70%; padding: 8px; }
-        button { padding: 8px 16px; margin-left: 10px; }
-        pre { background: #f6f6f6; padding: 15px; overflow-x: auto; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            margin: 20px;
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        button {
+            padding: 12px 25px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.1s ease;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        pre {
+            background: #f6f6f6;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #3498db;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            form {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
-    <h2>Wallhaven 加速</h2>
-    <form onsubmit="handleSubmit(event)">
-        <input type="text" id="urlInput" placeholder="Enter URL to proxy" required>
-        <button type="submit">提交</button>
-    </form>
+    <div class="container">
+        <h2>Wallhaven 加速</h2>
+        <form onsubmit="handleSubmit(event)">
+            <input type="text" id="urlInput" placeholder="输入要加速的URL" required>
+            <button type="submit">提交</button>
+        </form>
+        <div class="footer">
+            项目基于Cloudflare Workers，开源于GitHub 
+            <a href="https://github.com/KevinZjYang/Wallhaven-Proxy" target="_blank">
+                KevinZjYang/Wallhaven-Proxy
+            </a>
+        </div>
+    </div>
     <script>
         function handleSubmit(event) {
             event.preventDefault();
