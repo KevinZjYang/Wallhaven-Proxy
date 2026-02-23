@@ -65,15 +65,45 @@ async function fetchHandler(e) {
     const req = e.request
     const urlStr = req.url
     const urlObj = new URL(urlStr)
-    
+
+    // 优先处理路径前缀方式（最可靠）：/https://wallhaven.cc/xxx
+    const pathPrefix = '/https://';
+    if (urlObj.pathname.startsWith(pathPrefix)) {
+        const urlStrProxy = 'https://' + urlObj.pathname.slice(pathPrefix.length) + urlObj.search;
+        const urlObjProxy = newUrl(urlStrProxy);
+        if (urlObjProxy) {
+            const reqInit = {
+                method: req.method,
+                headers: new Headers(req.headers),
+                redirect: 'manual',
+                body: req.body
+            }
+            return proxy(urlObjProxy, reqInit)
+        }
+    }
+
     // 获取路径参数中的 q 值（用于直接代理）
-    let path = urlObj.searchParams.get('q')
+    // 使用 URLSearchParams 获取完整的 q 值，避免 & 符号截断问题
+    let path = new URLSearchParams(urlObj.search).get('q')
     if (path) {
+        // 检查是否已经是完整 URL，直接代理而不是重定向
+        if (path.match(/^https?:\/\//)) {
+            const urlObjProxy = newUrl(path)
+            if (urlObjProxy) {
+                const reqInit = {
+                    method: req.method,
+                    headers: new Headers(req.headers),
+                    redirect: 'manual',
+                    body: req.body
+                }
+                return proxy(urlObjProxy, reqInit)
+            }
+        }
         return Response.redirect(`https://${urlObj.host}${PREFIX}${path}`, 301)
     }
 
     // 提取完整路径并处理
-    path = urlObj.href.substr(urlObj.origin.length + PREFIX.length)
+    path = urlObj.href.slice(urlObj.origin.length + PREFIX.length)
     
     // 检查是否匹配 wallhaven.cc 的 URL 模式
     let matched = false

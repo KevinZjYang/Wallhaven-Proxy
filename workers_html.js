@@ -141,11 +141,12 @@ const HTML_PAGE = `
     <div class="container">
         <h2>Wallhaven 加速</h2>
         <form onsubmit="handleSubmit(event)">
-            <input type="text" id="urlInput" placeholder="输入要加速的URL" required>
+            <input type="text" id="urlInput" placeholder="输入要加速的URL，如 https://wallhaven.cc/api/v1/search?q=girl" required>
             <button type="submit">提交</button>
         </form>
         <div class="footer">
-            项目基于Cloudflare Workers，开源于GitHub 
+            推荐使用路径方式：https://domain.com/https://wallhaven.cc/xxx<br>
+            项目基于Cloudflare Workers，开源于GitHub
             <a href="https://github.com/KevinZjYang/Wallhaven-Proxy" target="_blank">
                 KevinZjYang/Wallhaven-Proxy
             </a>
@@ -154,26 +155,11 @@ const HTML_PAGE = `
     <script>
         function handleSubmit(event) {
             event.preventDefault();
-            const url = document.getElementById('urlInput').value;
-            fetch('/?q=' + encodeURIComponent(url))
-                .then(response => {
-                    const contentType = response.headers.get('content-type') || '';
-                    if (contentType.includes('image')) {
-                        window.open('/?q=' + encodeURIComponent(url), '_blank');
-                    } else if (contentType.includes('json')) {
-                        return response.json().then(data => {
-                            const win = window.open('', '_blank');
-                            win.document.write(
-                                '<pre>' + 
-                                JSON.stringify(data, null, 2) + 
-                                '</pre>'
-                            );
-                        });
-                    } else {
-                        window.open('/?q=' + encodeURIComponent(url), '_blank');
-                    }
-                })
-                .catch(err => alert('Error: ' + err.message));
+            const url = document.getElementById('urlInput').value.trim();
+            // 先对用户输入的 URL 进行编码，避免 & 被截断
+            const encodedUrl = encodeURIComponent(url);
+            const proxyUrl = '/?q=' + encodedUrl;
+            window.open(proxyUrl, '_blank');
         }
     </script>
 </body>
@@ -209,7 +195,23 @@ async function fetchHandler(e) {
     const req = e.request
     const urlStr = req.url
     const urlObj = new URL(urlStr)
-    
+
+    // 优先处理路径前缀方式（最可靠）：/https://wallhaven.cc/xxx
+    const pathPrefix = '/https://';
+    if (urlObj.pathname.startsWith(pathPrefix)) {
+        const urlStrProxy = 'https://' + urlObj.pathname.slice(pathPrefix.length) + urlObj.search;
+        const urlObjProxy = newUrl(urlStrProxy);
+        if (urlObjProxy) {
+            const reqInit = {
+                method: req.method,
+                headers: new Headers(req.headers),
+                redirect: 'manual',
+                body: req.body
+            }
+            return proxy(urlObjProxy, reqInit)
+        }
+    }
+
     // 显示输入页面
     if (req.method === 'GET' && urlObj.pathname === PREFIX) {
         const q = urlObj.searchParams.get('q')
@@ -222,10 +224,25 @@ async function fetchHandler(e) {
 
     let path = urlObj.searchParams.get('q')
     if (path) {
+        // 解码 URL，避免 & 被截断
+        path = decodeURIComponent(path)
+        // 如果是完整 URL，直接代理
+        if (path.match(/^https?:\/\//)) {
+            const urlObjProxy = newUrl(path)
+            if (urlObjProxy) {
+                const reqInit = {
+                    method: req.method,
+                    headers: new Headers(req.headers),
+                    redirect: 'manual',
+                    body: req.body
+                }
+                return proxy(urlObjProxy, reqInit)
+            }
+        }
         return Response.redirect(`https://${urlObj.host}${PREFIX}${path}`, 301)
     }
 
-    path = urlObj.href.substr(urlObj.origin.length + PREFIX.length)
+    path = urlObj.href.slice(urlObj.origin.length + PREFIX.length)
     
     let matched = false
     for (const regex of exp) {
