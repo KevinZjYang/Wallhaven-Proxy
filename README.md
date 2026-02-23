@@ -1,43 +1,52 @@
 # Wallhaven-Proxy
+
 ## 简介
-wallhaven.cc站点api请求及图片的加速项目，部署在Cloudflare Workers。
+wallhaven.cc 站点 API 请求及图片的加速项目，部署在 Cloudflare Workers。
 
 ## 代理的地址
-- https://wallhaven.cc/xxx
-- https://w.wallhaven.cc/xxx
-- https://th.wallhaven.cc/xxx
+- `https://wallhaven.cc/xxx` - 主站
+- `https://w.wallhaven.cc/xxx` - 全尺寸图片
+- `https://th.wallhaven.cc/xxx` - 缩略图
 
-## worker.js和worker_html.js的区别
-worker_html增加了一个网页用于调试。
-![image](https://github.com/user-attachments/assets/ce421f6f-693c-4623-a667-b81434381f77)
+## worker.js 和 worker_html.js 的区别
+- `worker.js` - 纯代理版本
+- `worker_html.js` - 带网页调试界面版本（推荐）
 
-## 使用
-代理域名需要自己部署，下面的域名是瞎写的。
+![界面预览](https://github.com/user-attachments/assets/ce421f6f-693c-4623-a667-b81434381f77)
 
-- 1、直接把代理域名添加到要访问的域名前面
+## 使用方式
 
-比如代理域名：proxy.xxx.tech ,访问https://w.wallhaven.cc/full/vq/wallhaven-vq6x28.jpg
+### 方式一（推荐）：路径前缀
+```
+https://your-domain.com/https://wallhaven.cc/api/v1/search?q=girl
+https://your-domain.com/wallhaven.cc/api/v1/search?q=girl
+```
 
-新链接：https://proxy.xxx.tech/https://w.wallhaven.cc/full/vq/wallhaven-vq6x28.jpg
+支持的格式：
+- `domain/https://wallhaven.cc/xxx` - 带 https:// 前缀
+- `domain/wallhaven.cc/xxx` - 简写形式
+- `domain/w.wallhaven.cc/xxx` - 图片域名
+- `domain/th.wallhaven.cc/xxx` - 缩略图域名
 
-- 2、代理域名：proxy.xxx.tech，把链接作为参数添加到后面。
+### 方式二：查询参数
+```
+https://your-domain.com?q=https://wallhaven.cc/api/v1/search?q=girl
+```
+注意：URL 中的 `&` 需要编码为 `%26`
 
-新链接：https://proxy.xxx.tech?q=https://w.wallhaven.cc/full/vq/wallhaven-vq6x28.jpg
+## Cloudflare Workers 部署
 
-## cf worker部署
-需要有一个托管在cf的域名。cf的域名在国内访问很差。
+1. 访问 [Cloudflare Dashboard](https://dash.cloudflare.com/)
+2. 进入 Workers 和 Pages → 创建 Worker
+3. 将 `workers_html.js` 代码粘贴到编辑器，点击部署
+4. 设置 → 域和路由 → 添加自定义域
 
-首页：https://dash.cloudflare.com/
+## 部署时间
+页面底部会显示最近部署时间（手动更新）。
 
-- 1、注册，登陆，计算（workers），Workers 和 Pages，创建--创建worker，取个名字直接部署。
-
-- 2、复制worker.js中的代码到左侧代码框，右上角部署。
-- 3、返回后点击创建的worker，设置，域和路由，添加自定义域。
-
-## Cloudflare Workers计费
-到**Workers 和 Pages**页面可参看使用情况。免费版每天有 10 万次免费请求，并且有每分钟1000次请求的限制。
-
-如果不够用，可升级到 $5 的高级版本，每月可用 1000 万次请求（超出部分 $0.5/百万次请求）。
+## Cloudflare Workers 计费
+- 免费版：每天 10 万次请求，每分钟 1000 次请求限制
+- $5/月：每月 1000 万次请求，超出部分 $0.5/百万次
 
 ## 参考
 [hunshcn/gh-proxy](https://github.com/hunshcn/gh-proxy)
