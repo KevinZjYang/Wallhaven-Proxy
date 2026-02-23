@@ -4,6 +4,8 @@
  * static files (404.html, sw.js, conf.js)
  */
 const PREFIX = '/'
+// 部署时间，每次部署时手动更新
+const DEPLOY_TIME = '2026-02-23 15:40:23'
 const Config = {
     jsdelivr: 0 // 此配置保留但未使用
 }
@@ -126,6 +128,12 @@ const HTML_PAGE = `
             text-decoration: underline;
         }
 
+        .deploy-time {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
         @media (max-width: 480px) {
             form {
                 flex-direction: column;
@@ -145,6 +153,7 @@ const HTML_PAGE = `
             <button type="submit">提交</button>
         </form>
         <div class="footer">
+            <div class="deploy-time">部署时间：${DEPLOY_TIME}</div>
             推荐使用路径方式：https://domain.com/https://wallhaven.cc/xxx<br>
             项目基于Cloudflare Workers，开源于GitHub
             <a href="https://github.com/KevinZjYang/Wallhaven-Proxy" target="_blank">
@@ -210,6 +219,29 @@ async function fetchHandler(e) {
             }
             return proxy(urlObjProxy, reqInit)
         }
+    }
+
+    // 支持不带 https:// 前缀的方式：/wallhaven.cc/xxx
+    const pathWithoutSlash = urlObj.pathname.slice(1); // 去掉开头的 /
+    let handled = false; // 标记是否已处理请求
+    if (pathWithoutSlash.match(/^(wallhaven\.cc|w\.wallhaven\.cc|th\.wallhaven\.cc)\//i)) {
+        const urlStrProxy = 'https://' + pathWithoutSlash + urlObj.search;
+        const urlObjProxy = newUrl(urlStrProxy);
+        if (urlObjProxy) {
+            const reqInit = {
+                method: req.method,
+                headers: new Headers(req.headers),
+                redirect: 'manual',
+                body: req.body
+            }
+            handled = true;
+            return proxy(urlObjProxy, reqInit)
+        }
+    }
+
+    // 如果路径已处理，跳过后续的 q 参数处理
+    if (handled) {
+        return makeRes('Proxy error', 500);
     }
 
     // 显示输入页面

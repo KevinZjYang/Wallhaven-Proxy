@@ -82,6 +82,29 @@ async function fetchHandler(e) {
         }
     }
 
+    // 支持不带 https:// 前缀的方式：/wallhaven.cc/xxx
+    const pathWithoutSlash = urlObj.pathname.slice(1);
+    let handled = false; // 标记是否已处理请求
+    if (pathWithoutSlash.match(/^(wallhaven\.cc|w\.wallhaven\.cc|th\.wallhaven\.cc)\//i)) {
+        const urlStrProxy = 'https://' + pathWithoutSlash + urlObj.search;
+        const urlObjProxy = newUrl(urlStrProxy);
+        if (urlObjProxy) {
+            const reqInit = {
+                method: req.method,
+                headers: new Headers(req.headers),
+                redirect: 'manual',
+                body: req.body
+            }
+            handled = true;
+            return proxy(urlObjProxy, reqInit)
+        }
+    }
+
+    // 如果路径已处理，跳后续的 q 参数处理
+    if (handled) {
+        return makeRes('Proxy error', 500);
+    }
+
     // 获取路径参数中的 q 值（用于直接代理）
     // 使用 URLSearchParams 获取完整的 q 值，避免 & 符号截断问题
     let path = new URLSearchParams(urlObj.search).get('q')
